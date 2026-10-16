@@ -1,11 +1,12 @@
 import os
 import joblib
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 
-os.makedirs('models', exist_ok=True)
+os.makedirs('analyst/models', exist_ok=True)
 
 print('[*] The data inside the csv file must be strictly int type')
 path = input('path: ').strip()
@@ -29,13 +30,12 @@ df = df.select_dtypes(['int', 'float'])
 X = df.drop(labels=columns_for_drop, axis=1, errors='ignore')
 y = df[target]
 
-center = len(df) // 2
-X_train, X_test = X.iloc[:center], X.iloc[center:]
-y_train, y_test = y.iloc[:center], y.iloc[center:]
-
 isolation_forest = IsolationForest()
 linear_regression = LinearRegression()
 k_means = KMeans(n_clusters=3)
+
+X_train, X_test = train_test_split(X, test_size=0.2, train_size=0.8, random_state=42)
+y_train, y_test = train_test_split(y, test_size=0.2, train_size=0.8, random_state=42)
 
 isolation_forest.fit(X_train)
 linear_regression.fit(X_train, y_train)
@@ -72,4 +72,4 @@ quark_artifact = {
     'feature_columns': X.columns.tolist()
 }
 
-joblib.dump(quark_artifact, 'quark_model.joblib')
+joblib.dump(quark_artifact, 'analyst/models/quark_model.joblib')
